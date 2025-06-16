@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет - UniSite КФУ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #f59e0b;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Анимированный фон */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--bg-gradient);
+            opacity: 0.1;
+        }
+
+        .animated-bg::before,
+        .animated-bg::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animated-bg::before {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .animated-bg::after {
+            bottom: 10%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        /* Хедер */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo::before {
+            content: '🎓';
+            font-size: 2rem;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Основной контент */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            gap: 2rem;
+        }
+
+        /* Карточки */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-icon {
+            font-size: 1.8rem;
+        }
+
+        /* Статистика */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Профиль */
+        .profile-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .profile-avatar-section {
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 3rem;
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .profile-info {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Работы */
+        .works-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .work-item {
+            background: #f8fafc;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            border-left: 4px solid var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .work-item:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .work-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .work-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .work-description {
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .work-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .work-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--text-secondary);
+        }
+
+        /* Быстрые действия */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .action-icon {
+            font-size: 2rem;
+        }
+
+        /* Сообщения */
+        .message {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .message-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        .message-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .message-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .profile-section {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .user-menu {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Загрузочные состояния */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--secondary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+
+    <!-- Хедер -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">UniSite</a>
+            <div class="user-menu">
+                <div class="user-avatar" id="userAvatar">У</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Загрузка...</div>
+                    <div class="user-role" id="userRole">Студент</div>
+                </div>
+                <button class="btn btn-outline" onclick="logout()">
+                    🚪 Выйти
+                </button>
+                <button class="btn btn-outline" onclick="window.location.href = '/moderation'">👀 Модерация</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="main-content">
+        <!-- Сообщения -->
+        <div id="messageContainer"></div>
+
+        <!-- Статистика -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-number" id="worksCount">0</div>
+                <div class="stat-label">Мои работы</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👁️</div>
+                <div class="stat-number" id="totalViews">0</div>
+                <div class="stat-label">Просмотры</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">❤️</div>
+                <div class="stat-number" id="totalLikes">0</div>
+                <div class="stat-label">Лайки</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎓</div>
+                <div class="stat-number" id="memberSince">2024</div>
+                <div class="stat-label">Год регистрации</div>
+            </div>
+        </div>
+
+        <!-- Профиль пользователя -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span class="card-icon">👤</span>
+                    Мой профиль
+                </div>
+                <button class="btn btn-outline" onclick="editProfile()">
+                    ✏️ Редактировать
+                </button>
+            </div>
+
+            <div class="profile-section">
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar" id="profileAvatar">У</div>
+                    <button class="btn btn-outline" onclick="changeAvatar()">
+                        📷 Сменить фото
+                    </button>
+                </div>
+
+                <div class="profile-info" id="profileInfo">
+                    <!-- Информация загружается динамически -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Быстрые действия -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span class="card-icon">⚡</span>
+                    Быстрые действия
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <a href="/addWork" class="action-btn" onclick="addNewWork()">
+                    <span class="action-icon">➕</span>
+                    Добавить работу
+                </a>
+                <a href="#" class="action-btn" onclick="viewMyWorks()">
+                    <span class="action-icon">📖</span>
+                    Мои работы
+                </a>
+                <a href="#" class="action-btn" onclick="browseWorks()">
+                    <span class="action-icon">🔍</span>
+                    Обзор работ
+                </a>
+                <a href="#" class="action-btn" onclick="viewStatistics()">
+                    <span class="action-icon">📊</span>
+                    Статистика
+                </a>
+            </div>
+        </div>
+
+        <!-- Мои работы -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span class="card-icon">📚</span>
+                    Мои последние работы
+                </div>
+                <a href="#" class="btn btn-outline" onclick="viewMyWorks()">
+                    👁️ Все работы
+                </a>
+            </div>
+
+            <div class="works-list" id="worksList">
+                <!-- Работы загружаются динамически -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Глобальные переменные
+        let currentUser = null;
+        let userWorks = [];
+
+        // Функция показа сообщений
+        function showMessage(message, type = 'info') {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `
+                <div class="message message-${type}">
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        // Проверка авторизации при загрузке страницы
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuth();
+            if (currentUser) {
+                await loadUserData();
+                await loadUserWorks();
+                updateUI();
+                updateStatus();
+
+            }
+        });
+
+        // Проверка авторизации
+        async function checkAuth() {
+            // Проверяем сохраненную информацию о пользователе
+            const savedUser = localStorage.getItem('student_info') || sessionStorage.getItem('student_info');
+
+            if (!savedUser) {
+                // Если нет сохраненных данных - перенаправляем на вход
+                showMessage('Необходимо войти в систему', 'warning');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
+                return;
+            }
+
+            try {
+                currentUser = JSON.parse(savedUser);
+
+                // Проверяем актуальность данных через API
+                const response = await fetch(`/api/profile/${currentUser.id}`);
+                if (response.ok) {
+                    const profileData = await response.json();
+                    currentUser = { ...currentUser, ...profileData };
+
+                    // Обновляем сохраненные данные
+                    const storage = localStorage.getItem('student_info') ? localStorage : sessionStorage;
+                    storage.setItem('student_info', JSON.stringify(currentUser));
+                } else if (response.status === 404) {
+                    // Пользователь не найден - очищаем данные
+                    localStorage.removeItem('student_info');
+                    sessionStorage.removeItem('student_info');
+                    window.location.href = '/login';
+                    return;
+                }
+            } catch (error) {
+                console.error('Ошибка при проверке авторизации:', error);
+                currentUser = JSON.parse(savedUser); // Используем сохраненные данные
+            }
+        }
+
+        // Загрузка данных пользователя
+        async function loadUserData() {
+            if (!currentUser) return;
+
+            try {
+                const response = await fetch(`/api/profile/${currentUser.id}`);
+                if (response.ok) {
+                    const userData = await response.json();
+                    currentUser = { ...currentUser, ...userData };
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных пользователя:', error);
+            }
+        }
+
+        // Загрузка работ пользователя
+        async function loadUserWorks() {
+            if (!currentUser) return;
+
+            try {
+                const response = await fetch(`/api/works?author_id=${currentUser.id}&limit=5`);
+                if (response.ok) {
+                    const data = await response.json();
+                    userWorks = data.works || [];
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки работ:', error);
+                userWorks = [];
+            }
+        }
+
+        function createAvatarElement(user, className = '') {
+            const avatarContainer = document.createElement('div');
+            avatarContainer.className = `avatar ${className}`;
+
+            if (user.avatar_url) {
+                // Если есть загруженный аватар
+                const img = document.createElement('img');
+                img.src = user.avatar_url;
+                img.alt = `Аватар ${user.name}`;
+                img.className = 'avatar-image';
+
+                // Обработка ошибки загрузки изображения (fallback на инициалы)
+                img.onerror = function() {
+                    console.warn('Не удалось загрузить аватар, показываем инициалы');
+                    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    avatarContainer.innerHTML = `<span class="avatar-initials">${initials}</span>`;
+                };
+
+                avatarContainer.appendChild(img);
+            } else {
+                // Если аватара нет, показываем инициалы
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                avatarContainer.innerHTML = `<span class="avatar-initials">${initials}</span>`;
+            }
+
+            return avatarContainer;
+        }
+        // Обновление интерфейса
+        function updateUI() {
+            if (!currentUser) return;
+
+            // Обновляем информацию в хедере
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            const userAvatar = document.getElementById('userAvatar');
+            const profileAvatar = document.getElementById('profileAvatar');
+
+            userName.textContent = currentUser.name;
+            userRole.textContent = `${currentUser.degree_level} • ${currentUser.faculty}`;
+
+            // Обновляем аватары
+            updateAvatarDisplay(userAvatar, currentUser);
+            updateAvatarDisplay(profileAvatar, currentUser);
+
+            // Обновляем статистику
+            document.getElementById('worksCount').textContent = currentUser.works_count || 0;
+            document.getElementById('memberSince').textContent = new Date(currentUser.created_at).getFullYear();
+
+            // Подсчитываем общие просмотры и лайки
+            let totalViews = 0, totalLikes = 0;
+            userWorks.forEach(work => {
+                totalViews += work.views_count || 0;
+                totalLikes += work.likes_count || 0;
+            });
+
+            document.getElementById('totalViews').textContent = totalViews;
+            document.getElementById('totalLikes').textContent = totalLikes;
+
+            // Обновляем профиль
+            updateProfileInfo();
+
+            // Обновляем список работ
+            updateWorksList();
+
+            // Показываем приветствие
+            showMessage(`Добро пожаловать, ${currentUser.name}! 👋`, 'success');
+        }
+
+        // Функция для обновления отображения аватара в элементе
+        function updateAvatarDisplay(avatarElement, user) {
+            if (!avatarElement || !user) return;
+
+            // Очищаем содержимое
+            avatarElement.innerHTML = '';
+
+            if (user.avatar_url) {
+                // Если есть загруженный аватар
+                const img = document.createElement('img');
+                img.src = user.avatar_url;
+                img.alt = `Аватар ${user.name}`;
+                img.className = 'avatar-image';
+                img.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: inherit;
+                `;
+
+                // Обработка ошибки загрузки изображения
+                img.onerror = function() {
+                    console.warn('Не удалось загрузить аватар, показываем инициалы');
+                    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    avatarElement.innerHTML = `<span class="avatar-initials">${initials}</span>`;
+                };
+
+                avatarElement.appendChild(img);
+            } else {
+                // Если аватара нет, показываем инициалы
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                avatarElement.innerHTML = `<span class="avatar-initials">${initials}</span>`;
+            }
+        }
+        // Обновление информации профиля
+        function updateProfileInfo() {
+            const profileInfo = document.getElementById('profileInfo');
+            profileInfo.innerHTML = `
+                <div class="info-row">
+                    <span class="info-label">Имя:</span>
+                    <span class="info-value">${currentUser.name}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">${currentUser.email}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Студенческий билет:</span>
+                    <span class="info-value">${currentUser.student_id}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Факультет:</span>
+                    <span class="info-value">${currentUser.faculty}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Уровень образования:</span>
+                    <span class="info-value">${currentUser.degree_level}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Дата регистрации:</span>
+                    <span class="info-value">${new Date(currentUser.created_at).toLocaleDateString('ru-RU')}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Статус:</span>
+                    <span class="info-value" id="statusValue"></span>
+                </div>
+            `
+        };
+
+        // Обновление списка работ
+        function updateWorksList() {
+            const worksList = document.getElementById('worksList');
+
+            if (userWorks.length === 0) {
+                worksList.innerHTML = `
+                    <div class="work-item">
+                        <div class="work-title">Пока нет работ</div>
+                        <div class="work-description">
+                            Начните с добавления вашей первой работы!
+                            <a href="#" onclick="addNewWork()" style="color: var(--secondary-color);">Добавить работу</a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            worksList.innerHTML = userWorks.map(work => `
+                <div class="work-item">
+                    <div class="work-title">${work.title}</div>
+                    <div class="work-meta">
+                        <span>📂 ${work.category}</span>
+                        <span>📅 ${work.year}</span>
+                        ${work.supervisor ? `<span>👨‍🏫 ${work.supervisor}</span>` : ''}
+                    </div>
+                    <div class="work-description">${work.description.substring(0, 150)}${work.description.length > 150 ? '...' : ''}</div>
+                    <div class="work-stats">
+                        <span class="work-stat">👁️ ${work.views_count || 0}</span>
+                        <span class="work-stat">❤️ ${work.likes_count || 0}</span>
+                        <span class="work-stat">🏷️ ${work.keywords.join(', ')}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Функции действий
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                localStorage.removeItem('student_info');
+                sessionStorage.removeItem('student_info');
+                localStorage.removeItem('last_email');
+                showMessage('Вы успешно вышли из системы', 'success');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+            }
+        }
+
+        function getModeratorId() {
+                // Получаем данные из sessionStorage
+                const studentInfo = sessionStorage.getItem('student_info');
+                if (studentInfo) {
+                    try {
+                        const parsedInfo = JSON.parse(studentInfo);
+                        return parsedInfo.id;
+                    } catch (error) {
+                        console.error('Ошибка парсинга student_info:', error);
+                    }
+                }
+                // Fallback на значение по умолчанию
+                return 1;
+            }
+        async function checkModeratorAccess() {
+                const studentId = this.getModeratorId();
+
+                try {
+                    const response = await fetch(`/api/moderation/check/${studentId}`);
+
+                    if (!response.ok) {
+                        return false;
+                    }
+
+                    const data = await response.json();
+
+                    if (!data.is_moderator || !data.is_active) {
+                        return false;
+                    }
+
+                    return true;
+
+                } catch (error) {
+                    console.error('Ошибка проверки прав модератора:', error);
+                    return false;
+                }
+            }
+
+        async function updateStatus() {
+            const isModerator = await checkModeratorAccess();
+            const statusElement = document.getElementById('statusValue');
+
+            if (isModerator) {
+                statusElement.textContent = 'Модератор';
+            } else {
+                statusElement.textContent = 'Студент';
+            }
+        }
+
+        function editProfile() {
+            window.location.href = '/edit-profile';
+        }
+
+        function changeAvatar() {
+            showMessage('Функция смены аватара будет доступна в следующих версиях', 'info');
+        }
+
+        function addNewWork() {
+            showMessage('Переход к форме добавления работы...', 'info');
+            // Здесь будет переход к форме добавления работы
+        }
+
+        function viewMyWorks() {
+            showMessage('Переход к списку всех работ...', 'info');
+            // Здесь будет переход к полному списку работ пользователя
+        }
+
+        function browseWorks() {
+            showMessage('Переход к обзору всех работ...', 'info');
+            // Здесь будет переход к каталогу всех работ
+        }
+
+        function viewStatistics() {
+            showMessage('Переход к детальной статистике...', 'info');
+            // Здесь будет переход к странице статистики
+        }
+
+        // Функция для периодического обновления данных
+        setInterval(async () => {
+            if (currentUser) {
+                await loadUserData();
+            }
+        }, 5 * 60 * 1000); // Обновляем каждые 5 минут
+
+        // Обработка ошибок сети
+        window.addEventListener('online', () => {
+            showMessage('Соединение восстановлено', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            showMessage('Отсутствует подключение к интернету', 'warning');
+        });
+    </script>
+</body>
+</html>

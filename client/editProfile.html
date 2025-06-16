@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование профиля - UniSite КФУ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #f59e0b;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--bg-gradient);
+            opacity: 0.1;
+        }
+
+        .animated-bg::before,
+        .animated-bg::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animated-bg::before {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .animated-bg::after {
+            bottom: 10%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo::before {
+            content: '🎓';
+            font-size: 2rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb a {
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .avatar-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 3rem;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 35px;
+            height: 35px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .avatar-upload:hover {
+            transform: scale(1.1);
+            background: #d97706;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-input:disabled {
+            background: #f9fafb;
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .password-section {
+            background: #f8fafc;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .password-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .password-input-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .password-toggle:hover {
+            color: var(--secondary-color);
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .message-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+
+        .message-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--secondary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .form-help {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .form-error {
+            font-size: 0.875rem;
+            color: var(--error-color);
+            margin-top: 0.25rem;
+        }
+
+        .input-error {
+            border-color: var(--error-color) !important;
+        }
+
+        .input-success {
+            border-color: var(--success-color) !important;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .card-body {
+                padding: 1.5rem;
+            }
+
+            .card-header {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">UniSite</a>
+            <div class="breadcrumb">
+                <a href="/dashboard">Личный кабинет</a>
+                <span>→</span>
+                <span>Редактирование профиля</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div id="messageContainer"></div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">✏️ Редактирование профиля</div>
+                <div class="card-subtitle">Обновите свою личную информацию</div>
+            </div>
+
+            <div class="card-body">
+                <form id="profileForm">
+                    <!-- Секция аватара -->
+                    <div class="avatar-section">
+                        <div class="avatar-container">
+                            <div class="avatar" id="avatarPreview">У</div>
+                            <div class="avatar-upload" onclick="selectAvatar()">
+                                📷
+                            </div>
+                        </div>
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                        <div class="form-help">Нажмите на камеру, чтобы изменить фото профиля</div>
+                    </div>
+
+                    <!-- Основная информация -->
+                    <div class="form-group">
+                        <label class="form-label" for="name">Полное имя *</label>
+                        <input type="text" id="name" name="name" class="form-input" required>
+                        <div class="form-help">Введите ваше полное имя как в документах</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email *</label>
+                        <input type="email" id="email" name="email" class="form-input" disabled>
+                        <div class="form-help">Email нельзя изменить после регистрации</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="studentId">Студенческий билет *</label>
+                            <input type="text" id="studentId" name="studentId" class="form-input" disabled>
+                            <div class="form-help">Номер студенческого билета</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="faculty">Факультет *</label>
+                            <select id="faculty" name="faculty" class="form-select" required>
+                                <option value="">Выберите факультет</option>
+                                <option value="Институт математики и механики">Институт математики и механики</option>
+                                <option value="Институт физики">Институт физики</option>
+                                <option value="Химический институт">Химический институт</option>
+                                <option value="Институт геологии и нефтегазовых технологий">Институт геологии и нефтегазовых технологий</option>
+                                <option value="Институт экологии и природопользования">Институт экологии и природопользования</option>
+                                <option value="Институт вычислительной математики и информационных технологий">Институт вычислительной математики и информационных технологий</option>
+                                <option value="Юридический факультет">Юридический факультет</option>
+                                <option value="Институт экономики и финансов">Институт экономики и финансов</option>
+                                <option value="Институт управления, экономики и финансов">Институт управления, экономики и финансов</option>
+                                <option value="Философский факультет">Философский факультет</option>
+                                <option value="Факультет журналистики и социологии">Факультет журналистики и социологии</option>
+                                <option value="Институт филологии и межкультурной коммуникации">Институт филологии и межкультурной коммуникации</option>
+                                <option value="Институт международных отношений">Институт международных отношений</option>
+                                <option value="Институт психологии и образования">Институт психологии и образования</option>
+                                <option value="Институт фундаментальной медицины и биологии">Институт фундаментальной медицины и биологии</option>
+                                <option value="Высшая школа информационных технологий и интеллектуальных систем">Высшая школа информационных технологий и интеллектуальных систем</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="degreeLevel">Уровень образования *</label>
+                        <select id="degreeLevel" name="degreeLevel" class="form-select" required>
+                            <option value="">Выберите уровень</option>
+                            <option value="Бакалавр">Бакалавр</option>
+                            <option value="Специалист">Специалист</option>
+                            <option value="Магистр">Магистр</option>
+                            <option value="Аспирант">Аспирант</option>
+                        </select>
+                    </div>
+
+                    <!-- Дополнительная информация -->
+                    <div class="form-group">
+                        <label class="form-label" for="bio">О себе</label>
+                        <textarea id="bio" name="bio" class="form-input" rows="4" placeholder="Расскажите немного о себе, ваших интересах и достижениях..."></textarea>
+                        <div class="form-help">Эта информация будет видна другим пользователям</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="phone">Телефон</label>
+                            <input type="tel" id="phone" name="phone" class="form-input" placeholder="+7 (___) ___-__-__">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="birthDate">Дата рождения</label>
+                            <input type="date" id="birthDate" name="birthDate" class="form-input">
+                        </div>
+                    </div>
+
+                    <!-- Секция смены пароля -->
+                    <div class="password-section">
+                        <h3>🔒 Изменение пароля</h3>
+                        <div class="form-help" style="margin-bottom: 1rem;">Оставьте поля пустыми, если не хотите менять пароль</div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="currentPassword">Текущий пароль</label>
+                            <div class="password-input-group">
+                                <input type="password" id="currentPassword" name="currentPassword" class="form-input">
+                                <button type="button" class="password-toggle" onclick="togglePassword('currentPassword')">👁️</button>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="newPassword">Новый пароль</label>
+                                <div class="password-input-group">
+                                    <input type="password" id="newPassword" name="newPassword" class="form-input">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">👁️</button>
+                                </div>
+                                <div class="form-help">Минимум 8 символов</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="confirmPassword">Подтверждение пароля</label>
+                                <div class="password-input-group">
+                                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-input">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">👁️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Кнопки действий -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="cancelEdit()">
+                            ❌ Отмена
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            💾 Сохранить изменения
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentUser = null;
+        let formChanged = false;
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadUserData();
+            setupFormListeners();
+        });
+
+        // Загрузка данных пользователя
+        async function loadUserData() {
+            try {
+                const savedUser = localStorage.getItem('student_info') || sessionStorage.getItem('student_info');
+                if (!savedUser) {
+                    showMessage('Необходимо войти в систему', 'error');
+                    setTimeout(() => window.location.href = '/login', 2000);
+                    return;
+                }
+
+                currentUser = JSON.parse(savedUser);
+
+                // Получаем актуальные данные с сервера
+                const response = await fetch(`/api/profile/${currentUser.id}`);
+                if (response.ok) {
+                    const userData = await response.json();
+                    currentUser = { ...currentUser, ...userData };
+                    populateForm();
+                } else {
+                    throw new Error('Не удалось загрузить профиль');
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                showMessage('Ошибка загрузки данных пользователя', 'error');
+            }
+        }
+
+        // Заполнение формы данными
+        function populateForm() {
+            if (!currentUser) return;
+
+            document.getElementById('name').value = currentUser.name || '';
+            document.getElementById('email').value = currentUser.email || '';
+            document.getElementById('studentId').value = currentUser.student_id || '';
+            document.getElementById('faculty').value = currentUser.faculty || '';
+            document.getElementById('degreeLevel').value = currentUser.degree_level || '';
+            document.getElementById('bio').value = currentUser.bio || '';
+            document.getElementById('phone').value = currentUser.phone || '';
+            document.getElementById('birthDate').value = currentUser.birth_date || '';
+
+            // Обновляем аватар
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('avatarPreview').textContent = initials;
+
+            formChanged = false;
+        }
+
+        // Настройка слушателей событий формы
+        function setupFormListeners() {
+            const form = document.getElementById('profileForm');
+            const inputs = form.querySelectorAll('input, select, textarea');
+
+            // Отслеживание изменений в форме
+            inputs.forEach(input => {
+                if (input.type !== 'file') {
+                    input.addEventListener('input', () => {
+                        formChanged = true;
+                        validateField(input);
+                    });
+                }
+            });
+
+            // Обработка отправки формы
+            form.addEventListener('submit', handleFormSubmit);
+
+            // Обработка загрузки аватара
+            document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
+
+            // Предупреждение при закрытии страницы с несохраненными изменениями
+            window.addEventListener('beforeunload', (e) => {
+                if (formChanged) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+        }
+
+        // Валидация полей
+        function validateField(field) {
+            const value = field.value.trim();
+            field.classList.remove('input-error', 'input-success');
+
+            // Очищаем предыдущие сообщения об ошибках
+            const errorMsg = field.parentNode.querySelector('.form-error');
+            if (errorMsg) errorMsg.remove();
+
+            let isValid = true;
+            let errorMessage = '';
+
+            switch (field.name) {
+                case 'name':
+                    if (value.length < 2) {
+                        isValid = false;
+                        errorMessage = 'Имя должно содержать минимум 2 символа';
+                    }
+                    break;
+
+                case 'newPassword':
+                    if (value && value.length < 8) {
+                        isValid = false;
+                        errorMessage = 'Пароль должен содержать минимум 8 символов';
+                    }
+                    break;
+
+                case 'confirmPassword':
+                    const newPassword = document.getElementById('newPassword').value;
+                    if (value && value !== newPassword) {
+                        isValid = false;
+                        errorMessage = 'Пароли не совпадают';
+                    }
+                    break;
+
+                case 'phone':
+                    if (value && !/^\+7\s?\(\d{3}\)\s?\d{3}-\d{2}-\d{2}$/.test(value)) {
+                        // Автоформатирование номера телефона
+                        const digits = value.replace(/\D/g, '');
+                        if (digits.length === 11 && digits.startsWith('7')) {
+                            const formatted = `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`;
+                            field.value = formatted;
+                        }
+                    }
+                    break;
+            }
+
+            if (!isValid) {
+                field.classList.add('input-error');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'form-error';
+                errorDiv.textContent = errorMessage;
+                field.parentNode.appendChild(errorDiv);
+            } else if (field.required && value) {
+                field.classList.add('input-success');
+            }
+
+            return isValid;
+        }
+
+        // Обработка отправки формы
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+
+            // Валидация всех полей
+            const form = e.target;
+            const inputs = form.querySelectorAll('input[required], select[required]');
+            let isFormValid = true;
+
+            inputs.forEach(input => {
+                if (!validateField(input)) {
+                    isFormValid = false;
+                }
+            });
+
+            // Проверка паролей
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword || confirmPassword) {
+                if (!currentPassword) {
+                    showMessage('Введите текущий пароль для смены пароля', 'error');
+                    return;
+                }
+                if (newPassword !== confirmPassword) {
+                    showMessage('Новые пароли не совпадают', 'error');
+                    return;
+                }
+            }
+
+            if (!isFormValid) {
+                showMessage('Пожалуйста, исправьте ошибки в форме', 'error');
+                return;
+            }
+
+            await saveProfile();
+        }
+
+        // Сохранение профиля
+        async function saveProfile() {
+            const saveBtn = document.getElementById('saveBtn');
+            const originalText = saveBtn.innerHTML;
+
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="loading"></span> Сохранение...';
+
+            try {
+                const formData = new FormData();
+
+                // Основные данные
+                formData.append('name', document.getElementById('name').value);
+                formData.append('faculty', document.getElementById('faculty').value);
+                formData.append('degree_level', document.getElementById('degreeLevel').value);
+                formData.append('bio', document.getElementById('bio').value);
+                formData.append('phone', document.getElementById('phone').value);
+                formData.append('birth_date', document.getElementById('birthDate').value);
+
+                // Пароли (если указаны)
+                const newPassword = document.getElementById('newPassword').value;
+                if (newPassword) {
+                    formData.append('current_password', document.getElementById('currentPassword').value);
+                    formData.append('new_password', newPassword);
+                }
+
+                // Аватар (если был загружен)
+                const avatarFile = document.getElementById('avatarInput').files[0];
+                if (avatarFile) {
+                    formData.append('avatar', avatarFile);
+                }
+
+                const response = await fetch(`/api/profile/${currentUser.id}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage('Профиль успешно обновлен!', 'success');
+
+                    // Обновляем данные в localStorage/sessionStorage
+                    const updatedUser = { ...currentUser, ...result.user };
+                    const storageKey = 'student_info';
+
+                    if (localStorage.getItem(storageKey)) {
+                        localStorage.setItem(storageKey, JSON.stringify(updatedUser));
+                    } else {
+                        sessionStorage.setItem(storageKey, JSON.stringify(updatedUser));
+                    }
+
+                    currentUser = updatedUser;
+                    formChanged = false;
+
+                    // Перенаправляем обратно в личный кабинет через 2 секунды
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || 'Ошибка сохранения профиля');
+                }
+
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                showMessage(error.message || 'Произошла ошибка при сохранении', 'error');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalText;
+            }
+        }
+
+        // Выбор аватара
+        function selectAvatar() {
+            document.getElementById('avatarInput').click();
+        }
+
+        // Обработка загрузки аватара
+        function handleAvatarUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Проверка размера файла (максимум 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showMessage('Размер файла не должен превышать 5MB', 'error');
+                    return;
+                }
+
+                // Проверка типа файла
+                if (!file.type.startsWith('image/')) {
+                    showMessage('Можно загружать только изображения', 'error');
+                    return;
+                }
+
+                // Предварительный просмотр
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatar = document.getElementById('avatarPreview');
+                    avatar.style.backgroundImage = `url(${e.target.result})`;
+                    avatar.style.backgroundSize = 'cover';
+                    avatar.style.backgroundPosition = 'center';
+                    avatar.textContent = '';
+                    formChanged = true;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Переключение видимости пароля
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const button = field.nextElementSibling;
+
+            if (field.type === 'password') {
+                field.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                field.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+
+        // Отмена редактирования
+        function cancelEdit() {
+            if (formChanged) {
+                if (confirm('У вас есть несохраненные изменения. Вы уверены, что хотите покинуть страницу?')) {
+                    window.location.href = '/dashboard';
+                }
+            } else {
+                window.location.href = '/dashboard';
+            }
+        }
+
+        // Показ сообщений
+        function showMessage(message, type = 'info') {
+            const container = document.getElementById('messageContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            messageDiv.innerHTML = `
+                <strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</strong>
+                ${message}
+            `;
+
+            container.innerHTML = '';
+            container.appendChild(messageDiv);
+
+            // Автоматическое скрытие через 5 секунд
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.style.opacity = '0';
+                    setTimeout(() => messageDiv.remove(), 300);
+                }
+            }, 5000);
+
+            // Прокрутка к сообщению
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Автоформатирование телефона
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+
+            if (value.startsWith('8')) {
+                value = '7' + value.slice(1);
+            }
+
+            if (value.startsWith('7') && value.length <= 11) {
+                let formatted = '+7';
+                if (value.length > 1) {
+                    formatted += ` (${value.slice(1, 4)}`;
+                    if (value.length > 4) {
+                        formatted += `) ${value.slice(4, 7)}`;
+                        if (value.length > 7) {
+                            formatted += `-${value.slice(7, 9)}`;
+                            if (value.length > 9) {
+                                formatted += `-${value.slice(9, 11)}`;
+                            }
+                        }
+                    }
+                }
+                e.target.value = formatted;
+            }
+        });
+
+        // Подтверждение перед уходом со страницы
+        function confirmLeave(message) {
+            if (formChanged) {
+                return confirm(message || 'У вас есть несохраненные изменения. Покинуть страницу?');
+            }
+            return true;
+        }
+
+        // Обработка клавиш
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+S для сохранения
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                document.getElementById('profileForm').dispatchEvent(new Event('submit', { cancelable: true }));
+            }
+
+            // Escape для отмены
+            if (e.key === 'Escape') {
+                cancelEdit();
+            }
+        });
+
+        // Валидация в реальном времени для паролей
+        document.getElementById('newPassword').addEventListener('input', function() {
+            const confirmField = document.getElementById('confirmPassword');
+            if (confirmField.value) {
+                validateField(confirmField);
+            }
+        });
+
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            validateField(this);
+        });
+
+        // Показ силы пароля
+        document.getElementById('newPassword').addEventListener('input', function(e) {
+            const password = e.target.value;
+            let strength = 0;
+            let strengthText = '';
+            let strengthColor = '';
+
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            switch (strength) {
+                case 0:
+                case 1:
+                    strengthText = 'Очень слабый';
+                    strengthColor = '#ef4444';
+                    break;
+                case 2:
+                    strengthText = 'Слабый';
+                    strengthColor = '#f59e0b';
+                    break;
+                case 3:
+                    strengthText = 'Средний';
+                    strengthColor = '#eab308';
+                    break;
+                case 4:
+                    strengthText = 'Сильный';
+                    strengthColor = '#22c55e';
+                    break;
+                case 5:
+                    strengthText = 'Очень сильный';
+                    strengthColor = '#10b981';
+                    break;
+            }
+
+            // Удаляем предыдущий индикатор
+            const existingIndicator = document.querySelector('.password-strength');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+
+            if (password.length > 0) {
+                const strengthDiv = document.createElement('div');
+                strengthDiv.className = 'password-strength';
+                strengthDiv.style.cssText = `
+                    margin-top: 0.5rem;
+                    padding: 0.5rem;
+                    border-radius: 8px;
+                    background: ${strengthColor}20;
+                    border: 1px solid ${strengthColor};
+                    color: ${strengthColor};
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                `;
+                strengthDiv.innerHTML = `🔐 Сила пароля: ${strengthText}`;
+
+                e.target.parentNode.parentNode.appendChild(strengthDiv);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - UniSite КФУ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #f59e0b;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        /* Анимированный фон */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--bg-gradient);
+            opacity: 0.1;
+        }
+
+        .animated-bg::before,
+        .animated-bg::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animated-bg::before {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .animated-bg::after {
+            bottom: 10%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        /* Главный контейнер */
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 3rem 2rem;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Логотип */
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo-link:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-link::before {
+            content: '🎓';
+            font-size: 2.5rem;
+        }
+
+        /* Заголовок */
+        .login-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        /* Форма */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-input:invalid {
+            border-color: var(--error-color);
+        }
+
+        /* Дополнительные опции */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--secondary-color);
+        }
+
+        .forgot-password {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        /* Кнопки */
+        .btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #1e40af;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Сообщения */
+        .message {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .message-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .message-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+
+        /* Ссылки */
+        .auth-links {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .auth-link {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .auth-link:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        /* Индикатор загрузки */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .login-title {
+                font-size: 1.75rem;
+            }
+
+            .form-options {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+
+        /* Валидация формы */
+        .form-input.error {
+            border-color: var(--error-color);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .input-hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .input-error {
+            font-size: 0.8rem;
+            color: var(--error-color);
+            margin-top: 0.25rem;
+        }
+
+        /* Демо блок */
+        .demo-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--secondary-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+        }
+
+        .demo-info strong {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+
+    <div class="login-container">
+        <!-- Логотип -->
+        <div class="logo">
+            <a href="/" class="logo-link">UniSite</a>
+        </div>
+
+        <!-- Заголовок -->
+        <h1 class="login-title">Вход</h1>
+        <p class="login-subtitle">
+            Войдите в вашу учетную запись КФУ
+        </p>
+
+        <!-- Демо информация -->
+        <div class="demo-info">
+            <strong>Демо-режим:</strong> Для входа используйте любой зарегистрированный email с доменом @stud.kpfu.ru. Пароль пока не проверяется.
+        </div>
+
+        <!-- Сообщения -->
+        <div id="message-container"></div>
+
+        <!-- Форма входа -->
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="email" class="form-label">Корпоративная почта КФУ</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-input"
+                    required
+                    placeholder="student@stud.kpfu.ru"
+                    pattern=".*@stud\.kpfu\.ru$"
+                    autocomplete="email"
+                >
+                <div class="input-hint">Ваш корпоративный адрес КФУ</div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Пароль</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-input"
+                    required
+                    placeholder="Ваш пароль"
+                    autocomplete="current-password"
+                >
+                <div class="input-hint">Введите ваш пароль</div>
+            </div>
+
+            <!-- Дополнительные опции -->
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" class="checkbox" id="remember" name="remember">
+                    Запомнить меня
+                </label>
+                <a href="#" class="forgot-password" onclick="showForgotPassword()">Забыли пароль?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                <span id="submitText">🔐 Войти</span>
+                <span id="submitLoader" class="loading" style="display: none;"></span>
+            </button>
+        </form>
+
+        <!-- Ссылки -->
+        <div class="auth-links">
+            <p>Нет аккаунта? <a href="/register" class="auth-link">Зарегистрироваться</a></p>
+            <p><a href="/" class="auth-link">← Вернуться на главную</a></p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const submitLoader = document.getElementById('submitLoader');
+        const messageContainer = document.getElementById('message-container');
+
+        // Функция показа сообщений
+        function showMessage(message, type = 'error') {
+            messageContainer.innerHTML = `
+                <div class="message message-${type}">
+                    ${message}
+                </div>
+            `;
+            messageContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Функция очистки сообщений
+        function clearMessage() {
+            messageContainer.innerHTML = '';
+        }
+
+        // Функция показа информации о восстановлении пароля
+        function showForgotPassword() {
+            showMessage(
+                'Функция восстановления пароля будет доступна в следующих версиях. Обратитесь к администратору системы.',
+                'error'
+            );
+        }
+
+        // Валидация email
+        function validateEmail(email) {
+            return email.endsWith('@stud.kpfu.ru');
+        }
+
+        // Валидация формы в реальном времени
+        const emailInput = document.getElementById('email');
+
+        emailInput.addEventListener('blur', function() {
+            if (this.value && !validateEmail(this.value)) {
+                this.classList.add('error');
+                this.nextElementSibling.textContent = 'Разрешены только адреса с доменом @stud.kpfu.ru';
+                this.nextElementSibling.className = 'input-error';
+            } else {
+                this.classList.remove('error');
+                this.nextElementSibling.textContent = 'Ваш корпоративный адрес КФУ';
+                this.nextElementSibling.className = 'input-hint';
+            }
+        });
+
+        // Обработка отправки формы
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            clearMessage();
+
+            // Собираем данные формы
+            const formData = new FormData(form);
+            const data = {
+                email: formData.get('email').trim(),
+                password: formData.get('password')
+            };
+
+            // Валидация
+            if (!data.email) {
+                showMessage('Пожалуйста, введите email');
+                return;
+            }
+
+            if (!validateEmail(data.email)) {
+                showMessage('Разрешены только корпоративные адреса с доменом @stud.kpfu.ru');
+                return;
+            }
+
+            if (!data.password) {
+                showMessage('Пожалуйста, введите пароль');
+                return;
+            }
+
+            if (data.password.length < 1) {
+                showMessage('Пароль не может быть пустым');
+                return;
+            }
+
+            // Показываем индикатор загрузки
+            submitBtn.disabled = true;
+            submitText.style.display = 'none';
+            submitLoader.style.display = 'inline-block';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage(
+                        `Вход выполнен успешно! Добро пожаловать, ${result.student.name}!`,
+                        'success'
+                    );
+
+                    // Сохраняем информацию о студенте (в реальном проекте здесь будет JWT токен)
+                    if (formData.get('remember')) {
+                        localStorage.setItem('student_info', JSON.stringify(result.student));
+                    } else {
+                        sessionStorage.setItem('student_info', JSON.stringify(result.student));
+                    }
+
+                    // Перенаправляем на дашборд через 1.5 секунды
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else {
+                    if (response.status === 401) {
+                        showMessage('Неверный email или пароль. Проверьте введенные данные.');
+                    } else {
+                        showMessage(result.detail || 'Ошибка при входе в систему');
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showMessage('Ошибка подключения к серверу. Попробуйте позже.');
+            } finally {
+                // Скрываем индикатор загрузки
+                submitBtn.disabled = false;
+                submitText.style.display = 'inline';
+                submitLoader.style.display = 'none';
+            }
+        });
+
+        // Обработка нажатия Enter
+        form.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                form.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Автозаполнение из localStorage при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedEmail = localStorage.getItem('last_email');
+            if (savedEmail) {
+                document.getElementById('email').value = savedEmail;
+            }
+
+            // Анимация появления формы
+            const container = document.querySelector('.login-container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            container.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+
+            setTimeout(() => {
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+        });
+
+        // Сохранение email для автозаполнения
+        document.getElementById('email').addEventListener('change', function() {
+            if (this.value && validateEmail(this.value)) {
+                localStorage.setItem('last_email', this.value);
+            }
+        });
+
+        // Обработка успешной регистрации (если пришли с register)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('registered') === 'true') {
+            showMessage('Регистрация успешна! Теперь вы можете войти в систему.', 'success');
+        }
+    </script>
+</body>
+</html>

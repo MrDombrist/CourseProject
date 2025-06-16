@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Модерация - UniSite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .admin-btn {
+            position: center;
+            left: 50%;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submissions-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .submission-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .submission-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .submission-header {
+            display: flex;
+            justify-content: between;
+            align-items: start;
+            margin-bottom: 15px;
+            gap: 20px;
+        }
+
+        .submission-title {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .submission-meta {
+            color: #666;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .submission-content {
+            margin: 15px 0;
+        }
+
+        .submission-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .keywords {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .keyword {
+            background: #f0f2ff;
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .submission-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .approve-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .reject-btn {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .details-btn {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .comment-area {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: inherit;
+            resize: vertical;
+            margin: 15px 0;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-submissions {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .submission-header {
+                flex-direction: column;
+            }
+
+            .submission-actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+            }
+
+            .filters {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="filter-btn" onclick="window.location.href = '/'">🚪 Главная страница</button>
+            <button class="filter-btn" onclick="window.location.href = '/dashboard'">👤 Профиль</button>
+            <h1>🔍 Панель модератора</h1>
+            <p>Управление заявками на публикацию научных работ</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <h3 id="pendingCount">-</h3>
+                <p>Ожидают</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="approvedCount">-</h3>
+                <p>Одобрено</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="rejectedCount">-</h3>
+                <p>Отклонено</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="myTotalCount">-</h3>
+                <p>Мной обработано</p>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-status="pending">Ожидают модерации</button>
+            <button class="filter-btn" data-status="approve">Одобренные</button>
+            <button class="filter-btn" data-status="reject">Отклоненные</button>
+        </div>
+
+        <div class="submissions-list" id="submissionsList">
+            <div class="loading">Загрузка заявок...</div>
+        </div>
+        <div class="header">
+        <button class="filter-btn" onclick="window.location.href = '/admin'">👤 Панель администратора</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно для действий -->
+    <div id="actionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Модерация заявки</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div id="modalBody">
+                <p id="modalSubmissionTitle"></p>
+                <textarea id="moderatorComment" class="comment-area" placeholder="Комментарий модератора (необязательно)"></textarea>
+                <div class="submission-actions">
+                    <button id="confirmAction" class="action-btn">Подтвердить</button>
+                    <button id="cancelAction" class="action-btn" style="background: #6c757d;">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ModerationPanel {
+            constructor() {
+                this.currentStatus = 'pending';
+                this.currentModeratorId = this.getModeratorId();
+                this.submissions = [];
+                this.currentSubmissionId = null;
+                this.currentAction = null;
+
+                this.checkModeratorAccess().then(hasAccess => {
+                    if (hasAccess) {
+                        this.initEventListeners();
+                        this.loadStats();
+                        this.loadSubmissions();
+                    }
+                });
+            }
+
+            getModeratorId() {
+                // Получаем данные из sessionStorage
+                const studentInfo = sessionStorage.getItem('student_info');
+                if (studentInfo) {
+                    try {
+                        const parsedInfo = JSON.parse(studentInfo);
+                        return parsedInfo.id;
+                    } catch (error) {
+                        console.error('Ошибка парсинга student_info:', error);
+                    }
+                }
+                // Fallback на значение по умолчанию
+                return 1;
+            }
+
+            initEventListeners() {
+                // Фильтры
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentStatus = e.target.dataset.status;
+                        this.loadSubmissions();
+                    });
+                });
+
+                // Модальное окно
+                const modal = document.getElementById('actionModal');
+                const closeBtn = document.querySelector('.close');
+                const cancelBtn = document.getElementById('cancelAction');
+                const confirmBtn = document.getElementById('confirmAction');
+
+                closeBtn.addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+
+                cancelBtn.addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+
+                confirmBtn.addEventListener('click', () => {
+                    this.performAction();
+                });
+
+                // Закрытие модального окна при клике вне его
+                window.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+
+            async checkModeratorAccess() {
+                const studentId = this.getModeratorId();
+
+                try {
+                    const response = await fetch(`/api/moderation/check/${studentId}`);
+
+                    if (!response.ok) {
+                        this.showAccessDenied();
+                        return false;
+                    }
+
+                    const data = await response.json();
+
+                    if (!data.is_moderator || !data.is_active) {
+                        this.showAccessDenied();
+                        return false;
+                    }
+
+                    return true;
+
+                } catch (error) {
+                    console.error('Ошибка проверки прав модератора:', error);
+                    this.showAccessDenied();
+                    return false;
+                }
+            }
+
+            showAccessDenied() {
+                // Скрываем весь контент страницы
+                const container = document.querySelector('.container');
+                container.innerHTML = `
+                    <div style="
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        min-height: 60vh;
+                        text-align: center;
+                        padding: 40px 20px;
+                    ">
+                        <div style="
+                            background: linear-gradient(135deg, #ff6b6b, #ff8787);
+                            color: white;
+                            padding: 40px;
+                            border-radius: 20px;
+                            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.3);
+                            max-width: 500px;
+                            width: 100%;
+                        ">
+                            <div style="font-size: 4rem; margin-bottom: 20px;">🚫</div>
+                            <h1 style="font-size: 2rem; margin-bottom: 15px; font-weight: bold;">
+                                Доступ запрещен
+                            </h1>
+                            <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.9;">
+                                У вас недостаточно прав для доступа к панели модератора
+                            </p>
+                            <p style="font-size: 1rem; margin-bottom: 30px; opacity: 0.8;">
+                                Эта страница доступна только пользователям с правами модератора
+                            </p>
+                            <button onclick="window.location.href = '/'" style="
+                                background: white;
+                                color: #ff6b6b;
+                                border: none;
+                                padding: 15px 30px;
+                                border-radius: 25px;
+                                font-size: 1.1rem;
+                                font-weight: bold;
+                                cursor: pointer;
+                                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                                transition: all 0.3s ease;
+                            " onmouseover="this.style.transform='translateY(-2px)'"
+                               onmouseout="this.style.transform='translateY(0)'">
+                                🏠 Вернуться на главную
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            async loadStats() {
+                try {
+                    const response = await fetch(`/api/moderation/stats/${this.currentModeratorId}`);
+                    if (response.ok) {
+                        const stats = await response.json();
+
+                        document.getElementById('pendingCount').textContent = stats.total_pending || 0;
+                        document.getElementById('approvedCount').textContent = stats.total_approved || 0;
+                        document.getElementById('rejectedCount').textContent = stats.total_rejected || 0;
+                        document.getElementById('myTotalCount').textContent = stats.my_total || 0;
+                    }
+                } catch (error) {
+                    console.error('Ошибка загрузки статистики:', error);
+                }
+            }
+
+            async loadSubmissions() {
+                const listContainer = document.getElementById('submissionsList');
+                listContainer.innerHTML = '<div class="loading">Загрузка заявок...</div>';
+
+                try {
+                    const response = await fetch(
+                        `/api/moderation/submissions?status=${this.currentStatus}&moderator_id=${this.currentModeratorId}&limit=20`
+                    );
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.submissions = data.submissions || [];
+                        this.renderSubmissions();
+                    } else {
+                        listContainer.innerHTML = '<div class="no-submissions">Ошибка загрузки заявок</div>';
+                    }
+                } catch (error) {
+                    console.error('Ошибка загрузки заявок:', error);
+                    listContainer.innerHTML = '<div class="no-submissions">Ошибка соединения с сервером</div>';
+                }
+            }
+
+            renderSubmissions() {
+                const listContainer = document.getElementById('submissionsList');
+
+                if (this.submissions.length === 0) {
+                    listContainer.innerHTML = `
+                        <div class="no-submissions">
+                            <h3>Нет заявок со статусом "${this.getStatusText(this.currentStatus)}"</h3>
+                            <p>Проверьте другие разделы</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const submissionsHtml = this.submissions.map(submission => this.renderSubmissionCard(submission)).join('');
+                listContainer.innerHTML = submissionsHtml;
+
+                // Добавляем обработчики событий для кнопок
+                this.attachSubmissionEventListeners();
+            }
+
+            renderSubmissionCard(submission) {
+                const statusBadge = this.getStatusBadge(submission.status);
+                const keywordsHtml = submission.keywords ?
+                    submission.keywords.map(keyword => `<span class="keyword">${keyword}</span>`).join('') : '';
+
+                const actionsHtml = this.currentStatus === 'pending' ? `
+                    <div class="submission-actions">
+                        <button class="action-btn details-btn" data-action="details" data-id="${submission.id}">
+                            📋 Детали
+                        </button>
+                        <button class="action-btn approve-btn" data-action="approve" data-id="${submission.id}">
+                            ✅ Одобрить
+                        </button>
+                        <button class="action-btn reject-btn" data-action="reject" data-id="${submission.id}">
+                            ❌ Отклонить
+                        </button>
+                    </div>
+                ` : `
+                    <div class="submission-actions">
+                        <button class="action-btn details-btn" data-action="details" data-id="${submission.id}">
+                            📋 Детали
+                        </button>
+                    </div>
+                `;
+
+                return `
+                    <div class="submission-card" data-id="${submission.id}">
+                        <div class="submission-header">
+                            <div style="flex: 1;">
+                                <h3 class="submission-title">${submission.title}</h3>
+                                <div class="submission-meta">
+                                    <span>👤 ${submission.author.name}</span>
+                                    <span>🏛️ ${submission.author.faculty}</span>
+                                    <span>🎓 ${submission.author.degree_level}</span>
+                                    <span>📅 ${this.formatDate(submission.submitted_at)}</span>
+                                    <span>📂 ${submission.category}</span>
+                                    <span>📅 ${submission.year}</span>
+                                </div>
+                            </div>
+                            <div>
+                                ${statusBadge}
+                            </div>
+                        </div>
+
+                        <div class="submission-content">
+                            <div class="submission-description">
+                                ${submission.description}
+                            </div>
+
+                            ${submission.supervisor ? `<p><strong>Научный руководитель:</strong> ${submission.supervisor}</p>` : ''}
+
+                            <div class="keywords">
+                                ${keywordsHtml}
+                            </div>
+
+                            ${submission.file_path ? `
+                                <p>📎 <strong>Прикреплен файл:</strong> ${submission.file_path.split('/').pop()}</p>
+                            ` : ''}
+                        </div>
+
+                        ${actionsHtml}
+                    </div>
+                `;
+            }
+
+            attachSubmissionEventListeners() {
+                document.querySelectorAll('.action-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const action = e.target.dataset.action;
+                        const submissionId = parseInt(e.target.dataset.id);
+
+                        if (action === 'details') {
+                            this.showSubmissionDetails(submissionId);
+                        } else if (action === 'approve' || action === 'reject') {
+                            this.showActionModal(submissionId, action);
+                        }
+                    });
+                });
+            }
+
+            showSubmissionDetails(submissionId) {
+                const submission = this.submissions.find(s => s.id === submissionId);
+                if (!submission) return;
+
+                const modal = document.getElementById('actionModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalBody = document.getElementById('modalBody');
+
+                modalTitle.textContent = 'Детали заявки';
+
+                modalBody.innerHTML = `
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <h3>${submission.title}</h3>
+                        <div class="submission-meta" style="margin: 15px 0;">
+                            <span>👤 <strong>Автор:</strong> ${submission.author.name}</span><br>
+                            <span>📧 <strong>Email:</strong> ${submission.author.email}</span><br>
+                            <span>🏛️ <strong>Факультет:</strong> ${submission.author.faculty}</span><br>
+                            <span>🎓 <strong>Уровень:</strong> ${submission.author.degree_level}</span><br>
+                            <span>📂 <strong>Категория:</strong> ${submission.category}</span><br>
+                            <span>📅 <strong>Год:</strong> ${submission.year}</span><br>
+                            ${submission.supervisor ? `<span>👨‍🏫 <strong>Руководитель:</strong> ${submission.supervisor}</span><br>` : ''}
+                            <span>📅 <strong>Подано:</strong> ${this.formatDate(submission.submitted_at)}</span>
+                        </div>
+
+                        <div style="margin: 15px 0;">
+                            <strong>Описание:</strong>
+                            <p style="margin-top: 10px; line-height: 1.6;">${submission.description}</p>
+                        </div>
+
+                        ${submission.keywords && submission.keywords.length > 0 ? `
+                            <div style="margin: 15px 0;">
+                                <strong>Ключевые слова:</strong>
+                                <div class="keywords" style="margin-top: 10px;">
+                                    ${submission.keywords.map(keyword => `<span class="keyword">${keyword}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${submission.file_path ? `
+                            <div style="margin: 15px 0;">
+                                <strong>Файл:</strong> ${submission.file_path.split('/').pop()}
+                                <button class="action-btn details-btn" style="margin-left: 10px; padding: 5px 15px;"
+                                        onclick="window.open('/api/files/download/${submission.id}', '_blank')">
+                                    💾 Скачать
+                                </button>
+                            </div>
+                        ` : ''}
+
+                        ${submission.moderator_comment ? `
+                            <div style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                                <strong>Комментарий модератора:</strong>
+                                <p style="margin-top: 10px;">${submission.moderator_comment}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="submission-actions" style="justify-content: center; margin-top: 20px;">
+                        <button class="action-btn" style="background: #6c757d;" onclick="document.getElementById('actionModal').style.display='none'">
+                            Закрыть
+                        </button>
+                    </div>
+                `;
+
+                modal.style.display = 'block';
+            }
+
+            showActionModal(submissionId, action) {
+                const submission = this.submissions.find(s => s.id === submissionId);
+                if (!submission) return;
+
+                this.currentSubmissionId = submissionId;
+                this.currentAction = action;
+
+                const modal = document.getElementById('actionModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalSubmissionTitle = document.getElementById('modalSubmissionTitle');
+                const confirmBtn = document.getElementById('confirmAction');
+                const commentArea = document.getElementById('moderatorComment');
+
+                modalTitle.textContent = action === 'approve' ? 'Одобрить заявку' : 'Отклонить заявку';
+                modalSubmissionTitle.textContent = `"${submission.title}" от ${submission.author.name}`;
+
+                confirmBtn.textContent = action === 'approve' ? '✅ Одобрить' : '❌ Отклонить';
+                confirmBtn.className = `action-btn ${action === 'approve' ? 'approve-btn' : 'reject-btn'}`;
+
+                commentArea.value = '';
+                commentArea.placeholder = action === 'approve' ?
+                    'Комментарий для автора (необязательно)' :
+                    'Причина отклонения (рекомендуется)';
+
+                // Показываем стандартное модальное окно с формой
+                document.getElementById('modalBody').innerHTML = `
+                    <p id="modalSubmissionTitle">"${submission.title}" от ${submission.author.name}</p>
+                    <textarea id="moderatorComment" class="comment-area" placeholder="${commentArea.placeholder}"></textarea>
+                    <div class="submission-actions">
+                        <button id="confirmAction" class="action-btn ${action === 'approve' ? 'approve-btn' : 'reject-btn'}">
+                            ${action === 'approve' ? '✅ Одобрить' : '❌ Отклонить'}
+                        </button>
+                        <button id="cancelAction" class="action-btn" style="background: #6c757d;">Отмена</button>
+                    </div>
+                `;
+
+                // Переназначаем обработчики
+                document.getElementById('confirmAction').addEventListener('click', () => {
+                    this.performAction();
+                });
+
+                document.getElementById('cancelAction').addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+
+                modal.style.display = 'block';
+            }
+
+            async performAction() {
+                if (!this.currentSubmissionId || !this.currentAction) return;
+
+                const comment = document.getElementById('moderatorComment').value.trim();
+                const modal = document.getElementById('actionModal');
+
+                try {
+                    const response = await fetch(`/api/moderation/submissions/${this.currentSubmissionId}/action`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            action: this.currentAction,
+                            comment: comment || null,
+                            moderator_id: this.currentModeratorId  // Добавляем moderator_id в JSON
+                        })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+
+                        // Показываем уведомление об успехе
+                        this.showNotification(
+                            `Заявка успешно ${this.currentAction === 'approve' ? 'одобрена' : 'отклонена'}!`,
+                            'success'
+                        );
+
+                        modal.style.display = 'none';
+
+                        // Обновляем списки и статистику
+                        await this.loadStats();
+                        await this.loadSubmissions();
+
+                    } else {
+                        const error = await response.json();
+                        this.showNotification(error.detail || 'Ошибка при обработке заявки', 'error');
+                    }
+                } catch (error) {
+                    console.error('Ошибка при выполнении действия:', error);
+                    this.showNotification('Ошибка соединения с сервером', 'error');
+                }
+
+                this.currentSubmissionId = null;
+                this.currentAction = null;
+            }
+
+            showNotification(message, type = 'info') {
+                // Создаем элемент уведомления
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <span>${message}</span>
+                        <button class="notification-close">&times;</button>
+                    </div>
+                `;
+
+                // Стили для уведомлений
+                if (!document.getElementById('notification-styles')) {
+                    const styles = document.createElement('style');
+                    styles.id = 'notification-styles';
+                    styles.innerHTML = `
+                        .notification {
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            z-index: 2000;
+                            max-width: 400px;
+                            padding: 15px 20px;
+                            border-radius: 10px;
+                            color: white;
+                            font-weight: bold;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                            transform: translateX(100%);
+                            transition: transform 0.3s ease;
+                        }
+
+                        .notification-success {
+                            background: linear-gradient(135deg, #4CAF50, #45a049);
+                        }
+
+                        .notification-error {
+                            background: linear-gradient(135deg, #f44336, #d32f2f);
+                        }
+
+                        .notification-info {
+                            background: linear-gradient(135deg, #2196F3, #1976D2);
+                        }
+
+                        .notification-content {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            gap: 15px;
+                        }
+
+                        .notification-close {
+                            background: none;
+                            border: none;
+                            color: white;
+                            font-size: 20px;
+                            cursor: pointer;
+                            padding: 0;
+                            line-height: 1;
+                        }
+
+                        .notification.show {
+                            transform: translateX(0);
+                        }
+                    `;
+                    document.head.appendChild(styles);
+                }
+
+                document.body.appendChild(notification);
+
+                // Показываем уведомление
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 100);
+
+                // Обработчик закрытия
+                const closeBtn = notification.querySelector('.notification-close');
+                closeBtn.addEventListener('click', () => {
+                    this.hideNotification(notification);
+                });
+
+                // Автоматическое скрытие через 5 секунд
+                setTimeout(() => {
+                    this.hideNotification(notification);
+                }, 5000);
+            }
+
+            hideNotification(notification) {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification && notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+
+            getStatusText(status) {
+                const statusTexts = {
+                    'pending': 'Ожидают модерации',
+                    'approve': 'Одобренные',
+                    'reject': 'Отклоненные'
+                };
+                return statusTexts[status] || status;
+            }
+
+            getStatusBadge(status) {
+                const badges = {
+                    'pending': '<span class="status-badge status-pending">⏳ Ожидает</span>',
+                    'approve': '<span class="status-badge status-approved">✅ Одобрено</span>',
+                    'reject': '<span class="status-badge status-rejected">❌ Отклонено</span>'
+                };
+                return badges[status] || `<span class="status-badge">${status}</span>`;
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('ru-RU', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            new ModerationPanel();
+        });
+    </script>
+</body>
+</html>
